@@ -1,6 +1,7 @@
 import gzip
 import json
 import re
+import csv
 import sqlite3
 from datetime import datetime
 
@@ -31,7 +32,7 @@ def insert_listing(body, title, expired, posted, state, city, onet, soc5, soc2):
         onet, soc5, soc2])
     connection.commit()
 
-def process_line(line):
+def process_line(line, map_onet_soc, soc_hierarchy):
     listing_json = json.loads(line)
     body = listing_json['body'].encode('utf8')
     clean_body = remove_html_tags(body)
@@ -50,11 +51,24 @@ def process_line(line):
         )
 
 def process_file(file_location):
-    with gzip.open(file_location, 'r') as fileIn:
-        # process_line(fileIn.readline())
-        for line in fileIn:
-            process_line(line)
+    sample_f = gzip.open(file_location, 'r')
+    map_onet_soc_f = open('data/map_onet_soc.csv', 'r')
+    soc_hierarchy_f = open('data/soc_hierarchy.csv', 'r')
 
-create_new_listings_table()
-process_file('data/sample.gz')
-connection.close()
+    try:
+        map_onet_soc = csv.DictReader(map_onet_soc_f)
+        soc_hierarchy = csv.DictReader(soc_hierarchy_f)
+
+        process_line(sample_f.readline(), map_onet_soc, soc_hierarchy)
+        # for line in sample_f:
+        #     process_line(line)
+    finally:
+        sample_f.close()
+        map_onet_soc_f.close()
+        soc_hierarchy_f.close()
+        
+try:
+    create_new_listings_table()
+    process_file('data/sample.gz')
+finally:
+    connection.close()
