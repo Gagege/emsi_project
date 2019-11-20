@@ -1,3 +1,4 @@
+import sys
 import gzip
 import json
 import re
@@ -13,6 +14,7 @@ html_removed_count = 0
 connection = sqlite3.connect('interview_project.db')
 
 def create_new_listings_table():
+    print('Initializing database...')
     c = connection.cursor()
     c.execute('''DROP TABLE IF EXISTS listings''')
     c.execute('''CREATE TABLE listings
@@ -84,16 +86,25 @@ def soc_hierarchy_to_dict(file_location):
             mapping[row['child']] = row['parent']
         return mapping
 
-def process_file(file_location):
-    with gzip.open(file_location, 'r') as sample_f:
-        map_onet_soc = map_onet_soc_csv_to_dict('data/map_onet_soc.csv')
-        soc_hierarchy = soc_hierarchy_to_dict('data/soc_hierarchy.csv')
+def process_file(data_file):
+    with gzip.open(data_file, 'r') as sample_f:
+
+        print('Parsing csv files...')
+        map_onet_soc = map_onet_soc_csv_to_dict(sys.argv[2])
+        soc_hierarchy = soc_hierarchy_to_dict(sys.argv[3])
+        print('Processing data...')
+        count = 0
         for line in sample_f:
             process_line(line, map_onet_soc, soc_hierarchy)
+            count += 1
+            if count % 100 == 0:
+                sys.stdout.write('\r%s listings inserted' % count)
+                sys.stdout.flush()
+        print('\r\nProcessing complete!')
         
 try:
     create_new_listings_table()
-    process_file('data/sample.gz')
+    process_file(sys.argv[1])
     print('Removed html tags from this many listings:', html_removed_count)
 finally:
     connection.close()
