@@ -98,13 +98,13 @@ def process_file(data_file):
             process_line(line, map_onet_soc, soc_hierarchy)
             count += 1
             if count % 100 == 0:
-                sys.stdout.write('\r%s listings inserted' % count)
+                sys.stdout.write('\r%d listings inserted' % count)
                 sys.stdout.flush()
         print('\r\nProcessing complete!')
         
 try:
     create_new_listings_table()
     process_file(sys.argv[1])
-    print('Removed html tags from this many listings:', html_removed_count)
+    print('Removed html tags from this many listings: %d' % html_removed_count)
 finally:
     connection.close()
