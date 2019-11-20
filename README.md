@@ -6,4 +6,7 @@
 
 ## Getting Started
 The simplest way to run the project is to clone the sample data to a sibling folder of this project and run:
-```python process_sample_data.py ../data_engineer_technical_project/sample.gz ../data_engineer_technical_project/map_onet_soc.csv ../data_engineer_technical_project/soc_hierarchy.csv```
+
+```bash
+python process_sample_data.py ../data_engineer_technical_project/sample.gz ../data_engineer_technical_project/map_onet_soc.csv ../data_engineer_technical_project/soc_hierarchy.csv
+```
